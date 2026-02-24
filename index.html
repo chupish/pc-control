@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PC Control Panel</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #1c1c1c; color: white; text-align: center; padding: 20px; }
+        .btn { background: #248bcf; border: none; color: white; padding: 15px 25px; margin: 10px; 
+               border-radius: 10px; width: 80%; font-size: 18px; cursor: pointer; transition: 0.3s; }
+        .btn:active { transform: scale(0.95); background: #1a6ba3; }
+        .btn-red { background: #cf2424; }
+        .status { color: #44ff44; margin-bottom: 20px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <h2>💻 System Control</h2>
+    <div class="status">● Связь с ПК установлена</div>
+    
+    <button class="btn" onclick="send('screen')">📸 Сделать скриншот</button>
+    <button class="btn" onclick="send('webcam')">📷 Включить камеру</button>
+    <button class="btn" onclick="send('clip')">📋 Прочитать буфер</button>
+    <button class="btn" onclick="send('tasks')">📑 Список задач</button>
+    <button class="btn btn-red" onclick="send('off')">🛑 Выключить ПК</button>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Развернуть на весь экран
+
+        function send(command) {
+            // Отправляем команду боту через Mini App
+            tg.sendData(command);
+            tg.close(); // Закрыть приложение после нажатия (по желанию)
+        }
+    </script>
+</body>
+</html>
